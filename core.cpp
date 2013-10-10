@@ -1,11 +1,3 @@
-#include "main.hpp"
-#include "list.hpp"
-
-#include <cassert>
-#include <iostream>
-
-using namespace std;
-
 // TODO
 Code codegen_val(const List& list) {
   assert(list.get_children().size() == 3);

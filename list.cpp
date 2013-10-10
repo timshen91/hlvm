@@ -1,11 +1,3 @@
-#include "main.hpp"
-#include "list.hpp"
-
-#include <iostream>
-#include <cassert>
-
-using namespace std;
-
 List::List(NodeType type) : type(type) {}
 List::List(NodeType type, String data) : type(type), data(data) {}
 

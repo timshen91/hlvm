@@ -1,17 +1,3 @@
-#include "main.hpp"
-#include "list.hpp"
-#include "core.hpp"
-
-#include <map>
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <cctype>
-#include <cstdlib>
-#include <cassert>
-
-using namespace std;
-
 ListPtr parse(istream& in) {
   static char ch = '\n';
   while (isspace(ch)) ch = in.get();
