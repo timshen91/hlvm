@@ -3,7 +3,7 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <fstream>
+#include <cstdio>
 #include <cctype>
 #include <cstdlib>
 

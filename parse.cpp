@@ -1,41 +1,37 @@
-ListPtr parse(istream& in) {
+ListPtr parse() {
   static char ch = '\n';
-  while (isspace(ch)) ch = in.get();
-  if (in.eof())
-    return nullptr;
+  while (isspace(ch)) ch = cin.get();
+  if (cin.eof()) return nullptr;
+  ListPtr list;
   if (ch == '(') {
-    ch = in.get();
-    auto list = make_unique<List>(NodeType::list);
+    ch = cin.get();
+    list = make_unique<List>(NodeType::list);
     while (ch != ')') {
-      ensure(!in.eof(), "Unexpected EOF");
-      list->append(parse(in));
-      while (isspace(ch)) ch = in.get();
+      ensure(!cin.eof(), "Unexpected EOF");
+      list->append(parse());
     }
-    ch = in.get();
-    return list;
+    ch = cin.get();
   } else if (ch == ')') {
     ensure(false, "Unmatched ')'");
   } else {
     String data;
-    while (!in.eof() && !isspace(ch) && ch != ')') {
+    while (!cin.eof() && !isspace(ch) && ch != ')') {
       data += ch;
-      ch = in.get();
+      ch = cin.get();
     }
-    return make_unique<List>(NodeType::str, data);
+    list = make_unique<List>(NodeType::str, data);
   }
-  ensure(false, "Unreachable");
-  return nullptr;
+  while (isspace(ch)) ch = cin.get();
+  return list;
 }
 
 int main(int argc, char* args[]) {
   init_core();
-  ListPtr list;
-  auto* in = &cin;
   if (argc >= 2) {
-    static ifstream fin(args[1]);
-    in = &fin;
+    freopen(args[1], "r", stdin);
   }
-  while ((list = parse(*in)) != nullptr) {
+  ListPtr list;
+  while ((list = parse()) != nullptr) {
     list->dump();
     cout << "\n";
   }
