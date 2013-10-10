@@ -1,0 +1,10 @@
+(val fib
+ (lambda (pattern n)
+  (if (call <= (eval n) 1)
+   (eval n)
+   (call
+    +
+    (call - (eval n) 1)
+    (call - (eval n) 2)))))
+
+(call fib 3)
