@@ -1,5 +1,5 @@
 (# Comment like this. {type_name}: means a compile time type assertion, aka type check )
-(# val create compile time value. var create runtime value. )
+(# val creates compile time value. var creates runtime value. )
 (# no string escape so far )
 
 (val fib
