@@ -12,8 +12,8 @@ make_unique(Args&&... args) {
 // ---------- declare ----------
 class List;
 // FIXME Will be reimplemented in the future.
-typedef std::string String;
-typedef std::unique_ptr<List> ListPtr;
+typedef string String;
+typedef unique_ptr<List> ListPtr;
 // TODO Temporary work around. Codegen needed.
 typedef String Code;
 typedef Code (*CodeGenCallback)(const List& list);
@@ -33,18 +33,18 @@ public:
   Code codegen() const;
 
   const String& get_string() const;
-  const std::vector<ListPtr>& get_children() const;
+  const vector<ListPtr>& get_children() const;
 
 private:
   NodeType type;
   // union {
   String data;
-  std::vector<ListPtr> children;
+  vector<ListPtr> children;
   // };
 };
 
 // ---------- global definition ----------
-std::map<String, CodeGenCallback> callback;
+map<String, CodeGenCallback> callback;
 
 void error(String s) {
   cerr << s << "\n";

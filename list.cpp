@@ -28,7 +28,7 @@ const String& List::get_string() const {
   return data;
 }
 
-const std::vector<ListPtr>& List::get_children() const {
+const vector<ListPtr>& List::get_children() const {
   assert(type == NodeType::list);
   return children;
 }
