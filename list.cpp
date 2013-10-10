@@ -17,7 +17,8 @@ Code List::codegen() const {
   switch (type) {
   case NodeType::list:
     assert(children.size() > 0);
-    assert(callback.count(children[0]->data));
+    if (callback.count(children[0]->data) == 0)
+      error(String("No such keyword: " + children[0]->data));
     return callback[children[0]->data](*this);
   case NodeType::str:
     return data;

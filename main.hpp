@@ -22,8 +22,10 @@ enum class NodeType {
 };
 
 class List;
+// FIXME Will be reimplemented in the future.
 typedef std::string String;
 typedef std::unique_ptr<List> ListPtr;
+// TODO Temporary work around. Codegen needed.
 typedef String Code;
 
 typedef Code (*CodeGenCallback)(const List& list);
