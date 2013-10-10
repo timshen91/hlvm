@@ -18,7 +18,6 @@ typedef std::unique_ptr<List> ListPtr;
 typedef String Code;
 typedef Code (*CodeGenCallback)(const List& list);
 void error(String s);
-std::map<String, CodeGenCallback> callback;
 
 // ---------- detailed declare ----------
 enum class NodeType {
@@ -44,3 +43,6 @@ private:
   std::vector<ListPtr> children;
   // };
 };
+
+// ---------- global variable ----------
+std::map<String, CodeGenCallback> callback;
