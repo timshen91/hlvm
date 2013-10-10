@@ -56,6 +56,8 @@ int main(int argc, char* args[]) {
     list = parse(cin);
   }
   assert(list != nullptr);
+  list->dump();
+  cout << "\n\n";
   cout << list->codegen() << "\n";
   return 0;
 }
