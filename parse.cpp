@@ -9,6 +9,7 @@ ListPtr parse(istream& in) {
     while (ch != ')') {
       ensure(!in.eof(), "Unexpected EOF");
       list->append(parse(in));
+      while (isspace(ch)) ch = in.get();
     }
     ch = in.get();
     return list;
@@ -29,15 +30,14 @@ ListPtr parse(istream& in) {
 int main(int argc, char* args[]) {
   init_core();
   ListPtr list;
+  auto* in = &cin;
   if (argc >= 2) {
-    ifstream fin(args[1]);
-    list = parse(fin);
-  } else {
-    list = parse(cin);
+    static ifstream fin(args[1]);
+    in = &fin;
   }
-  ensure(list != nullptr, "");
-  list->dump();
-  cout << "\n\n";
-  cout << list->codegen() << "\n";
+  while ((list = parse(*in)) != nullptr) {
+    list->dump();
+    cout << "\n";
+  }
   return 0;
 }
