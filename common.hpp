@@ -17,7 +17,6 @@ typedef std::unique_ptr<List> ListPtr;
 // TODO Temporary work around. Codegen needed.
 typedef String Code;
 typedef Code (*CodeGenCallback)(const List& list);
-void error(String s);
 
 // ---------- detailed declare ----------
 enum class NodeType {
@@ -44,5 +43,16 @@ private:
   // };
 };
 
-// ---------- global variable ----------
+// ---------- global definition ----------
 std::map<String, CodeGenCallback> callback;
+
+void error(String s) {
+  cerr << s << "\n";
+  exit(1);
+}
+
+void ensure(bool cond, String msg) {
+  if (!cond) {
+    error(msg);
+  }
+}

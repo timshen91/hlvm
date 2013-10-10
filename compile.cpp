@@ -14,4 +14,4 @@ using namespace std;
 
 #include "core.cpp"
 #include "list.cpp"
-#include "main.cpp"
+#include "parse.cpp"

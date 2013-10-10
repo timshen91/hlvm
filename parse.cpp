@@ -27,11 +27,6 @@ ListPtr parse(istream& in) {
   return nullptr;
 }
 
-void error(String s) {
-  cerr << s << "\n";
-  exit(1);
-}
-
 int main(int argc, char* args[]) {
   init_core();
   ListPtr list;
