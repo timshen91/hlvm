@@ -8,14 +8,13 @@ void List::append(ListPtr&& t) {
 Code List::codegen() const {
   switch (type) {
   case NodeType::list:
-    assert(children.size() > 0);
-    if (callback.count(children[0]->data) == 0)
-      error(String("No such keyword: " + children[0]->data));
+    ensure(children.size() > 0, "");
+    ensure(callback.count(children[0]->data) > 0, String("No such keyword: " + children[0]->data));
     return callback[children[0]->data](*this);
   case NodeType::str:
     return data;
   }
-  error("Unreachable");
+  ensure(false, "Unreachable");
   return "";
 }
 
@@ -24,12 +23,12 @@ static void print_depth(int depth) {
 }
 
 const String& List::get_string() const {
-  assert(type == NodeType::str);
+  ensure(type == NodeType::str, "");
   return data;
 }
 
 const vector<ListPtr>& List::get_children() const {
-  assert(type == NodeType::list);
+  ensure(type == NodeType::list, "");
   return children;
 }
 

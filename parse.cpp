@@ -7,14 +7,13 @@ ListPtr parse(istream& in) {
     ch = in.get();
     auto list = make_unique<List>(NodeType::list);
     while (ch != ')') {
-      if (in.eof())
-        error("Unexpected EOF");
+      ensure(!in.eof(), "Unexpected EOF");
       list->append(parse(in));
     }
     ch = in.get();
     return list;
   } else if (ch == ')') {
-    error("Unmatched ')'");
+    ensure(false, "Unmatched ')'");
   } else {
     String data;
     while (!in.eof() && !isspace(ch) && ch != ')') {
@@ -23,7 +22,7 @@ ListPtr parse(istream& in) {
     }
     return make_unique<List>(NodeType::str, data);
   }
-  error("Unreachable");
+  ensure(false, "Unreachable");
   return nullptr;
 }
 
@@ -36,7 +35,7 @@ int main(int argc, char* args[]) {
   } else {
     list = parse(cin);
   }
-  assert(list != nullptr);
+  ensure(list != nullptr, "");
   list->dump();
   cout << "\n\n";
   cout << list->codegen() << "\n";

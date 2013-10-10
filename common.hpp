@@ -46,13 +46,8 @@ private:
 // ---------- global definition ----------
 map<String, CodeGenCallback> callback;
 
-void error(String s) {
-  cerr << s << "\n";
-  exit(1);
-}
-
-void ensure(bool cond, String msg) {
-  if (!cond) {
-    error(msg);
+#define ensure(cond, msg) \
+  if (!(cond)) {\
+    cerr << __FILE__ << " : " << __LINE__ << " : " << (msg) << "\n";\
+    exit(1);\
   }
-}

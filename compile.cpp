@@ -6,7 +6,6 @@
 #include <fstream>
 #include <cctype>
 #include <cstdlib>
-#include <cassert>
 
 using namespace std;
 
