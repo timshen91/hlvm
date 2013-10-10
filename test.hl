@@ -1,10 +1,13 @@
-(val fib
- (lambda (pattern n)
-  (if (call <= (eval n) 1)
-   (eval n)
-   (call
-    +
-    (call - (eval n) 1)
-    (call - (eval n) 2)))))
+(# Comment like this. {type_name}: means a compile time type assertion, aka type check )
+(# val create compile time value. var create runtime value. )
+(# no string escape so far )
 
-(call fib 3)
+(val fib
+ (lambda (pattern (int: n))
+  (if (call <= n (int 1))
+   n
+   (call +
+    (call - n (int 1))
+    (call - n (int 2))))))
+
+(call fib (int 3))
