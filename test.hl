@@ -1,13 +1,16 @@
-(# Comment like this. {type_name}: means a compile time type assertion, aka type check )
-(# val creates compile time value. var creates runtime value. )
-(# no string escape so far )
+(struct int-pair
+ (int a)
+ (int b))
 
-(val fib
- (lambda (pattern (int: n))
-  (if (call <= n (int 1))
-   n
+(var int-pair obj)
+(= obj (make-int-pair (a (int 3)) (b (int 4))))
+
+(procedure fib ((int n)) int
+ (if (call <= n (make-int 1))
+  (= ret n)
+  (= ret
    (call +
-    (call - n (int 1))
-    (call - n (int 2))))))
+    (call fib (call - n (make-int 1)))
+    (call fib (call - n (make-int 2)))))))
 
-(call fib (int 3))
+(call fib (make-int 3))

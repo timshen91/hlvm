@@ -1,0 +1,6 @@
+0) Everytime we need a callback, we create a keyword.
+1) if we don't need a callback, we don't use a keyword.
+2) How do you know what is a keyword and what's not? RTFSC, or no way.
+3) How do you know the semantics of a keyword? RTFSC, or no way.
+4) `ret` is the name of return variable in a function. It's reserved, like `this` in C++ member function.
+5) Template will be added finally. I promise.
