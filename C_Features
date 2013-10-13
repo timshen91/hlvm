@@ -1,0 +1,16 @@
+Basic
+  Static Data Types: 
+    short, int, long, char, float, double, etc.
+  Control Flow: 
+    if-else, while, for
+  Function Definition: 
+    prototype (return type, function name, parameter list), function body
+  Modules
+    include
+  Pointers & Memory Management
+    malloc, free
+
+Advanced
+  Preprocessor & MACROS
+  Bit Operations
+  Embeded Assembly
