@@ -4,3 +4,6 @@
 3) How do you know the semantic of a keyword? RTFSC, or no way.
 4) `ret` is the name of return variable in a function. It's reserved, like `this` in C++ member function.
 5) Template will be added finally. I promise.
+
+Jay:
+0) Does hlvm provide library support for math, IO, etc?

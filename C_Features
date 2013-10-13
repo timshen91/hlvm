@@ -1,9 +1,10 @@
 Basic
-  Static Data Types: 
+  Static Library and User Defined Data Types
     short, int, long, char, float, double, etc.
-  Control Flow: 
+    struct
+  Control Flow
     if-else, while, for
-  Function Definition: 
+  Function Definition
     prototype (return type, function name, parameter list), function body
   Modules
     include
@@ -14,3 +15,67 @@ Advanced
   Preprocessor & MACROS
   Bit Operations
   Embeded Assembly
+
+Further Breakdowns & Tentative Syntax
+  Variable Declaration
+    # without initialization, values are undefined
+
+      (var [(TYPE NAME)]) (var [(int i)
+                                (double d)])
+
+  Variable Definition
+    # is it necessary? declaration + assignment for replacement?
+    # initialization is faster?
+
+      (var [(TYPE NAME VALUE)]) (var [(int i 3)
+                                      (double d 0.1)])
+
+    # for the 2nd case, how is it going to execute
+    # is the following statement valid?
+
+      (var [(int i 3) (double d i)])
+
+  Variable Assignment
+
+    (= [(NAME VALUE)])   (= [(i 3)
+                             (d 0.1)])
+
+  Struct Definition
+    
+    (struct NAME [MEMBERS]) # MEMBER = (TYPE NAME)
+    (struct int-pair [(int l) (int r)])
+
+  Control Flow
+    
+    (if TEST-CASE
+        THEN-BLOCK
+        OPTIONAL-ELSE-BLOCK)
+    (if True 1 2)
+    (if (1==1) (= [(s "stupid")]))
+
+    (while TEST-CASE
+           LOOP-BODY)
+    (while True (= [(s "infinite loop")]))
+
+    # Convert all FORs to WHILEs
+
+  Function Definition
+    
+    (function NAME [PARAMETERS] RETURN-TYPE 
+      FUNCTION-BODY) # PARAMETER = (TYPE NAME)
+    (function add [(int a) (int b)] int
+      (+ a b))
+
+  To be continued ...
+
+NOTE:
+  The more I write the more it resembles lisp
+  should take more time to think than write
+
+  Bottom Lines:
+  0. .hl files should be easy to generate regardless of how
+     hard it can be written by human
+  1. It cannot be ambigious
+  2. Less keywords is better
+  3. It has to be somewhat readable
+  4. It should be concise 
