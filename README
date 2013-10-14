@@ -1,9 +1,16 @@
-0) Everytime we need a callback, we create a keyword.
-1) If we don't need a callback, we don't use a keyword.
-2) How do you know what is a keyword and what's not? RTFSC, or no way.
-3) How do you know the semantic of a keyword? RTFSC, or no way.
-4) `ret` is the name of return variable in a function. It's reserved, like `this` in C++ member function.
-5) Template will be added finally. I promise.
+Tim:
+* hlvm syntax module exports a set of keywords, say, c-syntax-module exports keyword if, while, for, struct ...
+* hlvm library exports variable and function definitions.
+* A hlvm syntax module depends on zero or more hlvm syntax modules.
+* A hlvm library depends on zero or more hlvm syntax modules and hlvm libraries.
+* Everytime we need a hlvm list handler, we create a keyword.
+* If we don't need a hlvm list handler, we don't use a keyword. Minimize the number of them.
+* `ret` is the name of return variable in a function. It's reserved, like `this` in C++ member function.
+* Template will be added finally. I promise.
 
 Jay:
-0) Does hlvm provide library support for math, IO, etc?
+* .hl files should be easy to generate regardless of how hard it can be written by human.
+* Then it has to be somewhat readable.
+* It cannot be ambigious. The only thing making it ambigious is keyword confliction.
+* Less keywords is better.
+* It should be concise.

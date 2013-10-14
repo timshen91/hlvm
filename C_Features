@@ -1,68 +1,55 @@
 Basic
-  Static Library and User Defined Data Types
-    short, int, long, char, float, double, etc.
+  Primitive Types and User Defined Data Types
+    bit(bool), [u]int8, [u]int16, [u]int32, [u]int64, float32, float64, etc, and their operations.
+    array
+    pointers
     struct
   Control Flow
-    if-else, while, for
+    if-else, while, for, do-while
   Function Definition
-    prototype (return type, function name, parameter list), function body
-  Modules
-    include
-  Pointers & Memory Management
-    malloc, free
-
-Advanced
-  Preprocessor & MACROS
-  Bit Operations
-  Embeded Assembly
+    prototype (return type and name, function name, parameter list), function body
+  Memory Management
+    c-heap-lib, providing malloc/realloc/free
+    gc-lib in the future, providing malloc
 
 Further Breakdowns & Tentative Syntax
   Variable Declaration
-    # without initialization, values are undefined
+    # without initialization, values are a special value `undefined`
 
-      (var [(TYPE NAME)]) (var [(int i)
-                                (double d)])
+      (var TYPE NAME)
+      (var int i)
+      (var double d)
 
-  Variable Definition
-    # is it necessary? declaration + assignment for replacement?
-    # initialization is faster?
-
-      (var [(TYPE NAME VALUE)]) (var [(int i 3)
-                                      (double d 0.1)])
-
-    # for the 2nd case, how is it going to execute
-    # is the following statement valid?
-
-      (var [(int i 3) (double d i)])
+  Linkage
+  Binary export, source export, etc.
 
   Variable Assignment
 
-    (= [(NAME VALUE)])   (= [(i 3)
-                             (d 0.1)])
+    (set NAME VALUE)   (set i 3)
+    # pattern matching style assignment should be added in the future.
 
   Struct Definition
     
-    (struct NAME [MEMBERS]) # MEMBER = (TYPE NAME)
+    (struct NAME [MEMBERS]) # MEMBER : (TYPE NAME)
     (struct int-pair [(int l) (int r)])
 
   Control Flow
     
-    (if TEST-CASE
+    # if *statement*, not *expression*
+    (if CONDITION
         THEN-BLOCK
-        OPTIONAL-ELSE-BLOCK)
-    (if True 1 2)
-    (if (1==1) (= [(s "stupid")]))
+        ELSE-BLOCK) # a block could be a dummy block `(dummy)`
 
-    (while TEST-CASE
+    (while CONDITION
            LOOP-BODY)
-    (while True (= [(s "infinite loop")]))
+    (while (bool True) (set [(s "infinite loop")]))
 
     # Convert all FORs to WHILEs
 
   Function Definition
     
     (function NAME [PARAMETERS] RETURN-TYPE 
-      FUNCTION-BODY) # PARAMETER = (TYPE NAME)
+      FUNCTION-BODY) # PARAMETER : (TYPE NAME)
     (function add [(int a) (int b)] int
       (+ a b))
 
@@ -71,11 +58,3 @@ Further Breakdowns & Tentative Syntax
 NOTE:
   The more I write the more it resembles lisp
   should take more time to think than write
-
-  Bottom Lines:
-  0. .hl files should be easy to generate regardless of how
-     hard it can be written by human
-  1. It cannot be ambigious
-  2. Less keywords is better
-  3. It has to be somewhat readable
-  4. It should be concise 
