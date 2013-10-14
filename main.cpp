@@ -5,8 +5,7 @@ int main(int argc, char* args[]) {
   }
   ListPtr list;
   while ((list = parse()) != nullptr) {
-    list->dump();
-    cout << "\n";
+    list->codegen();
   }
   return 0;
 }
