@@ -7,6 +7,7 @@ Tim:
 * If we don't need a hlvm list handler, we don't use a keyword. Minimize the number of them.
 * `ret` is the name of return variable in a function. It's reserved, like `this` in C++ member function.
 * Template will be added finally. I promise.
+* No syntactic sugar.
 
 Jay:
 * .hl files should be easy to generate regardless of how hard it can be written by human.
