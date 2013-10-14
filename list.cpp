@@ -5,17 +5,11 @@ void List::append(ListPtr&& t) {
   children.push_back(move(t));
 }
 
-Code List::codegen() const {
-  switch (type) {
-  case NodeType::list:
-    ensure(children.size() > 0, "");
-    ensure(handler.count(children[0]->data) > 0, String("No such keyword: " + children[0]->data));
-    return handler[children[0]->data](*this);
-  case NodeType::str:
-    return data;
-  }
-  ensure(false, "Unreachable");
-  return "";
+ValuePtr List::codegen() const {
+  ensure(type == NodeType::list, "List type expected");
+  ensure(children.size() > 0, "");
+  ensure(handler.count(children[0]->data) > 0, String("No such keyword: " + children[0]->data));
+  return handler[children[0]->data](*this);
 }
 
 static void print_depth(int depth) {

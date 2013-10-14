@@ -1,20 +1,20 @@
 // TODO
-Code handle_val(const List& list) {
+ValuePtr handle_var(const List& list) {
   ensure(list.get_children().size() == 3, "");
   auto key = list.get_children()[1]->get_string();
   auto value = list.get_children()[2]->codegen();
-  return Code("(") + "val" + " " + key + " " + value + ")";
+  return nullptr;
 }
 
 // TODO
-Code handle_lambda(const List& list) {
+ValuePtr handle_function(const List& list) {
   ensure(list.get_children().size() == 3, "");
   auto pattern = list.get_children()[1]->codegen();
   auto body = list.get_children()[2]->codegen();
-  return Code("(") + "lambda" + " " + pattern + " " + body + ")";
+  return nullptr;
 }
 
 void init_core() {
-  handler["val"] = handle_val;
-  handler["lambda"] = handle_lambda;
+  handler["var"] = handle_var;
+  handler["function"] = handle_function;
 }
