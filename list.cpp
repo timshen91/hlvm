@@ -9,8 +9,8 @@ Code List::codegen() const {
   switch (type) {
   case NodeType::list:
     ensure(children.size() > 0, "");
-    ensure(callback.count(children[0]->data) > 0, String("No such keyword: " + children[0]->data));
-    return callback[children[0]->data](*this);
+    ensure(handler.count(children[0]->data) > 0, String("No such keyword: " + children[0]->data));
+    return handler[children[0]->data](*this);
   case NodeType::str:
     return data;
   }

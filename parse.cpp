@@ -3,7 +3,8 @@ ListPtr parse() {
   while (isspace(ch)) ch = cin.get();
   if (cin.eof()) return nullptr;
   ListPtr list;
-  if (ch == '(') {
+  switch (ch) {
+  case '(':
     ch = cin.get();
     list = make_unique<List>(NodeType::list);
     while (ch != ')') {
@@ -11,12 +12,23 @@ ListPtr parse() {
       list->append(parse());
     }
     ch = cin.get();
-  } else if (ch == ')') {
+    break;
+  case ')':
     ensure(false, "Unmatched ')'");
-  } else {
+    break;
+  default:
     String data;
     while (!cin.eof() && !isspace(ch) && ch != ')') {
-      data += ch;
+      if (ch == '\\') {
+        ch = cin.get();
+        if (!cin.eof()) {
+          data += ch;
+        } else {
+          data += '\\';
+        }
+      } else {
+        data += ch;
+      }
       ch = cin.get();
     }
     list = make_unique<List>(NodeType::str, data);

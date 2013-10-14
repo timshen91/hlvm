@@ -9,7 +9,7 @@ make_unique(Args&&... args) {
 
 };
 
-// ---------- declare ----------
+// ---------- declaration ----------
 class List;
 // FIXME Will be reimplemented in the future.
 typedef string String;
@@ -18,7 +18,7 @@ typedef unique_ptr<List> ListPtr;
 typedef String Code;
 typedef Code (*CodeGenCallback)(const List& list);
 
-// ---------- detailed declare ----------
+// ---------- detailed declaration ----------
 enum class NodeType {
   str,
   list,
@@ -44,7 +44,7 @@ private:
 };
 
 // ---------- global definition ----------
-map<String, CodeGenCallback> callback;
+map<String, CodeGenCallback> handler;
 
 #define ensure(cond, msg) \
   if (!(cond)) {\
