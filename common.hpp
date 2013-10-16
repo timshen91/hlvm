@@ -1,12 +1,10 @@
 // ---------- std ----------
 namespace std {
 
-template<typename T, typename... Args>
-inline unique_ptr<T>
-make_unique(Args&&... args) {
-	return unique_ptr<T>(new T(args...));
+template <typename T, typename... Args>
+inline unique_ptr<T> make_unique(Args &&... args) {
+  return unique_ptr<T>(new T(args...));
 }
-
 };
 
 // ---------- declaration ----------
@@ -15,7 +13,7 @@ class List;
 typedef string String;
 typedef unique_ptr<List> ListPtr;
 typedef unique_ptr<llvm::Value> ValuePtr;
-typedef ValuePtr (*Handler)(const List& list);
+typedef ValuePtr (*Handler)(const List &list);
 
 // ---------- detailed declaration ----------
 enum class NodeType {
@@ -24,17 +22,17 @@ enum class NodeType {
 };
 
 class List {
-public:
+ public:
   List(NodeType type);
   explicit List(NodeType type, String data);
-  void append(ListPtr&& t);
+  void append(ListPtr &&t);
   void dump() const;
   ValuePtr codegen() const;
 
-  const String& get_string() const;
-  const vector<ListPtr>& get_children() const;
+  const String &get_string() const;
+  const vector<ListPtr> &get_children() const;
 
-private:
+ private:
   NodeType type;
   // union {
   String data;
@@ -45,10 +43,10 @@ private:
 // ---------- global definition ----------
 map<String, Handler> handler;
 
-#define ensure(cond, msg) \
-  do {\
-    if (!(cond)) {\
-      cerr << __FILE__ << " : " << __LINE__ << " : " << (msg) << "\n";\
-      exit(1);\
-    }\
+#define ensure(cond, msg)                                              \
+  do {                                                                 \
+    if (!(cond)) {                                                     \
+      cerr << __FILE__ << " : " << __LINE__ << " : " << (msg) << "\n"; \
+      exit(1);                                                         \
+    }                                                                  \
   } while (false)

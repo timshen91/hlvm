@@ -1,33 +1,31 @@
-ValuePtr handle_comment(const List& list) {
-  return nullptr;
-}
+ValuePtr handle_comment(const List &list) { return nullptr; }
 
 // TODO
-ValuePtr handle_struct(const List& list) {
+ValuePtr handle_struct(const List &list) {
   cerr << "handle_struct\n";
   return nullptr;
 }
 
 // TODO
-ValuePtr handle_assign(const List& list) {
+ValuePtr handle_assign(const List &list) {
   cerr << "handle_assign\n";
   return nullptr;
 }
 
 // TODO
-ValuePtr handle_var(const List& list) {
+ValuePtr handle_var(const List &list) {
   cerr << "handle_var\n";
   return nullptr;
 }
 
 // TODO
-ValuePtr handle_function(const List& list) {
+ValuePtr handle_function(const List &list) {
   cerr << "handle_function\n";
   return nullptr;
 }
 
 // TODO
-ValuePtr handle_call(const List& list) {
+ValuePtr handle_call(const List &list) {
   cerr << "handle_call\n";
   return nullptr;
 }
