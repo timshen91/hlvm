@@ -1,3 +1,13 @@
+HLVM
+
+It is a virtual machine intending to provide language implementers with high-level build blocks. For example, it supports c-style-for-loop construction, so that when implementing C, C++ or Java, the C style for loop can be implemented easily by generating unified syntax like, (for expr1 expr2 expr3 expr4), meaning for (expr1; expr2; expr3) expr4; A language may want Garbage Collection, so all the implementation needs to do is to enable HLVM GC module. GC module may be conflict with pointer arithmetic module.
+
+In fact, modules that provide different semantics depend on or conflict with each other, are much like packages under a package managing system in Unix-like operating systems. Once this ``language feature package manager'' is implemented, to create a new language which only combines some existing features, one only needs to write a parser and a simple codegen part; to create a new language feature, one can write a HLVM module and reuse other modules.
+
+Another advantage is that every ``source code to HLVM code'' translation are encouraged to be reversible. That is to say, given target language and a piece of HLVM code, HLVM should be able to generate target source code. this enables translation between two languages. For example, one Java programmer may miss vector class in C++, so he first convert C++ standard library to Java code, then use it. Surely there will be many work to do, but it is worth trying.
+
+If LLVM offers an abstract layer for different architectures, HLVM offers an abstract layer for difference languages. Through breaking up languages to features, I hope to create a better language that mix imperative and functional languages finally.
+
 Tim:
 * hlvm syntax module exports a set of keywords, say, c-syntax-module exports keyword if, while, for, struct ...
 * hlvm library exports variable and function definitions.
