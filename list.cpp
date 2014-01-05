@@ -1,27 +1,20 @@
 List::List(NodeType type) : type(type) {}
-List::List(NodeType type, String data) : type(type), data(data) {}
+List::List(String data) : type(NodeType::str), data(data) {}
 
 void List::append(ListPtr &&t) { children.push_back(move(t)); }
 
-ValuePtr List::codegen() const {
-  ensure(type == NodeType::list, "List type expected");
-  ensure(children.size() > 0, "");
-  ensure(handler.count(children[0]->data) > 0,
-         String("No such keyword: " + children[0]->data));
-  return handler[children[0]->data](*this);
-}
-
 static void print_depth(int depth) {
-  while (depth--) cout << "  ";
+  while (depth--)
+    cout << "  ";
 }
 
 const String &List::get_string() const {
-  ensure(type == NodeType::str, "");
+  ensure(type == NodeType::str, "Symbol expected");
   return data;
 }
 
 const vector<ListPtr> &List::get_children() const {
-  ensure(type == NodeType::list, "");
+  ensure(type == NodeType::list, "List expected");
   return children;
 }
 

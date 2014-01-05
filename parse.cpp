@@ -1,6 +1,7 @@
-ListPtr parse() {
+ListPtr tokenize() {
   static char ch = '\n';
-  while (isspace(ch)) ch = cin.get();
+  while (isspace(ch))
+    ch = cin.get();
   if (cin.eof()) return nullptr;
   ListPtr list;
   switch (ch) {
@@ -9,7 +10,7 @@ ListPtr parse() {
       list = make_unique<List>(NodeType::list);
       while (ch != ')') {
         ensure(!cin.eof(), "Unexpected EOF");
-        list->append(parse());
+        list->append(tokenize());
       }
       ch = cin.get();
       break;
@@ -31,8 +32,17 @@ ListPtr parse() {
         }
         ch = cin.get();
       }
-      list = make_unique<List>(NodeType::str, data);
+      list = make_unique<List>(data);
   }
-  while (isspace(ch)) ch = cin.get();
+  while (isspace(ch))
+    ch = cin.get();
   return list;
+}
+
+ASTNodePtr parse(const List &list) {
+  auto &children = list.get_children();
+  ensure(children.size() > 0, "Keyword expected");
+  ensure(handler.count(children[0]->get_string()) > 0,
+         String("No such keyword: " + children[0]->get_string()));
+  return handler[children[0]->get_string()](list);
 }

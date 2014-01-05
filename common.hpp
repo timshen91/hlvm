@@ -5,29 +5,24 @@ template <typename T, typename... Args>
 inline unique_ptr<T> make_unique(Args &&... args) {
   return unique_ptr<T>(new T(args...));
 }
+
 };
 
-// ---------- declaration ----------
+// ---------- declarations ----------
 class List;
-// FIXME Will be reimplemented in the future.
 typedef string String;
 typedef unique_ptr<List> ListPtr;
-typedef unique_ptr<llvm::Value> ValuePtr;
-typedef ValuePtr (*Handler)(const List &list);
 
-// ---------- detailed declaration ----------
 enum class NodeType {
-  str,
-  list,
+  str, list,
 };
 
 class List {
  public:
-  List(NodeType type);
-  explicit List(NodeType type, String data);
+  explicit List(NodeType type);
+  explicit List(String data);
   void append(ListPtr &&t);
   void dump() const;
-  ValuePtr codegen() const;
 
   const String &get_string() const;
   const vector<ListPtr> &get_children() const;
@@ -40,8 +35,22 @@ class List {
   // };
 };
 
+class ASTNode {
+ public:
+  virtual void codegen() const = 0;
+  virtual ~ASTNode() {}
+};
+
+// FIXME Will be reimplemented in the future.
+typedef unique_ptr<ASTNode> ASTNodePtr;
+typedef ASTNodePtr (*Handler)(const List &list);
+
 // ---------- global definition ----------
-map<String, Handler> handler;
+extern map<String, Handler> handler;
+map<String, set<String>> env_table = { { "file", { "#", "var", "function" } },
+                                       { "function", { "#", "var", "if",
+                                                       "return", "call" } }, };
+vector<String> env_stack;
 
 #define ensure(cond, msg)                                              \
   do {                                                                 \

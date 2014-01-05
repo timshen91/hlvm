@@ -1,17 +1,21 @@
-(# comment )
-(struct int-pair
- (int a)
- (int b))
-
-(var int-pair obj)
-(assign obj (make-int-pair (a (make-int 3)) (b (make-int 4))))
+(#
+ (struct int_pair
+  (int a)
+  (int b))
+ 
+ (var int_pair obj)
+ (= (. a obj) (int 3))
+ (= (. b obj) (int 4))
+)
 
 (function fib ((int n)) int
- (if (call <= n (make-int 1))
-  (= ret n)
-  (= ret
-   (call +
-    (call fib (call - n (make-int 1)))
-    (call fib (call - n (make-int 2)))))))
+ (if (<= n (int 1))
+  (return n)
+  (return
+   (+
+    (call fib (- n (int 1)))
+    (call fib (- n (int 2)))))))
 
-(call fib (make-int 3))
+(function main () int
+ (call fib (int 3))
+ (return 0))
