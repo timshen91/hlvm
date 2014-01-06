@@ -1,5 +1,5 @@
 all:
-	g++ -Wall -g -std=c++11 compile.cpp -o hlvm
+	g++ -Wall -g -std=c++11 main.cpp -o hlvm
 
 clean:
 	rm -f hlvm

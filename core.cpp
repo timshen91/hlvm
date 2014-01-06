@@ -2,13 +2,9 @@
 class FileNode : public ASTNode {
  public:
   void codegen() const;
-  void append(ASTNodePtr &&);
 
- private:
   vector<ASTNodePtr> children;
 };
-
-void FileNode::append(ASTNodePtr &&node) { children.push_back(move(node)); }
 
 void FileNode::codegen() const {
   for (auto &iter : children) {
@@ -20,11 +16,13 @@ ASTNodePtr handle_file(const List &list) {
   auto &children = list.get_children();
   auto file = make_unique<FileNode>();
   env_stack.push_back("file");
-  for (long i = 1; i < static_cast<long>(children.size()); i++) {
-    auto &ch = children[i]->get_children();
-    ensure(ch.size() > 0, "");
-    auto &kwd = ch[0]->get_string();
-    file->append(parse(*children[i]));
+  {
+    for (long i = 1; i < static_cast<long>(children.size()); i++) {
+      auto &ch = children[i]->get_children();
+      ensure(ch.size() > 0, "");
+      auto &kwd = ch[0]->get_string();
+      file->children.push_back(parse(*children[i]));
+    }
   }
   env_stack.pop_back();
   return unique_ptr<ASTNode>(file.release());
@@ -68,8 +66,10 @@ ASTNodePtr handle_function(const List &list) {
   }
   func->ret_type = children[3]->get_string();
   env_stack.push_back("function");
-  for (long i = 4; i < static_cast<long>(children.size()); i++) {
-    func->body.push_back(parse(*children[i]));
+  {
+    for (long i = 4; i < static_cast<long>(children.size()); i++) {
+      func->body.push_back(parse(*children[i]));
+    }
   }
   env_stack.pop_back();
   return unique_ptr<ASTNode>(func.release());
