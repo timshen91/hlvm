@@ -24,10 +24,9 @@ using namespace std;
 namespace std {
 
 template <typename T, typename... Args>
-inline unique_ptr<T> make_unique(Args &&... args) {
+inline unique_ptr<T> make_unique(Args&&... args) {
   return unique_ptr<T>(new T(args...));
 }
-
 };
 
 // ---------- List ----------
@@ -36,22 +35,23 @@ typedef string String;
 typedef unique_ptr<List> ListPtr;
 
 enum class NodeType {
-  str, list,
+  symbol,
+  list,
 };
 
 class List {
  public:
   explicit List(NodeType type) : type(type) {}
-  explicit List(String data) : type(NodeType::str), data(data) {}
+  explicit List(String data) : type(NodeType::symbol), data(data) {}
 
-  void append(ListPtr &&t) { children.push_back(move(t)); }
+  void append(ListPtr&& t) { children.push_back(move(t)); }
 
-  const String &get_string() const {
-    ensure(type == NodeType::str, "Symbol expected");
+  const String& get_symbol() const {
+    ensure(type == NodeType::symbol, "Symbol expected");
     return data;
   }
 
-  const vector<ListPtr> &get_children() const {
+  const vector<ListPtr>& get_children() const {
     ensure(type == NodeType::list, "List expected");
     return children;
   }
@@ -63,7 +63,7 @@ class List {
       case NodeType::list:
         cout << "(\n";
         depth++;
-        for (auto &it : children) {
+        for (auto& it : children) {
           it->dump();
           cout << "\n";
         }
@@ -71,7 +71,7 @@ class List {
         print_depth(depth);
         cout << ")";
         break;
-      case NodeType::str:
+      case NodeType::symbol:
         cout << data;
         break;
     }
@@ -79,8 +79,7 @@ class List {
 
  private:
   void print_depth(int depth) const {
-    while (depth--)
-      cout << "  ";
+    while (depth--) cout << "  ";
   }
 
   NodeType type;
@@ -91,28 +90,23 @@ class List {
 };
 
 // ---------- AST ----------
-class ASTNode {
+class Node {
  public:
   virtual void codegen() const = 0;
-  virtual ~ASTNode() {}
+  virtual ~Node() {}
 };
 
 // FIXME Will be reimplemented in the future.
-typedef unique_ptr<ASTNode> ASTNodePtr;
-typedef ASTNodePtr (*Handler)(const List &list);
+typedef unique_ptr<Node> NodePtr;
+typedef NodePtr (*Handler)(const List& list);
 
 // ---------- global definition ----------
 extern map<String, Handler> handler;
-map<String, set<String>> env_table = { { "file", { "#", "var", "function" } },
-                                       { "function", { "#", "var", "if",
-                                                       "return", "call" } }, };
-vector<String> env_stack;
 
 // ---------- parser ----------
 ListPtr tokenize() {
   static char ch = '\n';
-  while (isspace(ch))
-    ch = cin.get();
+  while (isspace(ch)) ch = cin.get();
   if (cin.eof()) return nullptr;
   ListPtr list;
   switch (ch) {
@@ -145,22 +139,21 @@ ListPtr tokenize() {
       }
       list = make_unique<List>(data);
   }
-  while (isspace(ch))
-    ch = cin.get();
+  while (isspace(ch)) ch = cin.get();
   return list;
 }
 
-ASTNodePtr parse(const List &list) {
-  auto &children = list.get_children();
+NodePtr parse(const List& list) {
+  auto& children = list.get_children();
   ensure(children.size() > 0, "Keyword expected");
-  ensure(handler.count(children[0]->get_string()) > 0,
-         String("No such keyword: " + children[0]->get_string()));
-  return handler[children[0]->get_string()](list);
+  ensure(handler.count(children[0]->get_symbol()) > 0,
+         String("No such keyword: " + children[0]->get_symbol()));
+  return handler[children[0]->get_symbol()](list);
 }
 
 #include "core.cpp"
 
-int main(int argc, char *args[]) {
+int main(int argc, char* args[]) {
   if (argc >= 2 && strcmp("-", args[1]) != 0) {
     freopen(args[1], "r", stdin);
     if (argc >= 3 && strcmp("-", args[2]) != 0) {
