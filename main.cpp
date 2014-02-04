@@ -93,7 +93,7 @@ class List {
 class Node {
  public:
   virtual void codegen() const = 0;
-  virtual ~Node() = 0;
+  virtual ~Node() {}
 };
 
 // FIXME Will be reimplemented in the future.
