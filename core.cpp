@@ -11,7 +11,9 @@ typedef unique_ptr<Node> NodePtr;
 class Type {
  public:
   String name;
-  int size;
+  size_t size;
+
+  Type(String name, size_t size) : name(name), size(size) {}
 };
 
 class Variable {
@@ -31,6 +33,16 @@ class Environment {
   Environment* parent;
 
   Environment(Environment* parent) : parent(parent) {}
+
+  Type* lookup_type(String name) {
+    if (this == nullptr) {
+      return nullptr;
+    }
+    if (types.count(name) == 0) {
+      return parent->lookup_type(name);
+    }
+    return &types.find(name)->second;
+  }
 };
 
 class BlockNode {
@@ -55,7 +67,10 @@ class FileNode {
  public:
   Environment env;
 
-  FileNode() : env(nullptr) {}
+  FileNode() : env(nullptr) {
+    env.types.emplace(piecewise_construct, forward_as_tuple("int"),
+                      forward_as_tuple("int", 4));
+  }
 
   void codegen() const { cerr << "file codegen\n"; }
 };
@@ -80,10 +95,20 @@ void handle_function(void* generic, const List& list) {
   func->name = funcname;
   env = &func->body.env;
   for (size_t i = 0; i < list[2].size(); i++) {
-    auto type = list[2][i][0].get_symbol();
+    ensure(list[2][i].size() == 2, "Invalid argument declaration");
+    auto type = env->lookup_type(list[2][i][0].get_symbol());
+    ensure(type, "No such type");
     auto name = list[2][i][1].get_symbol();
-    cerr << type << " " << name << "\n";
-    // TODO insert arguments.
+    ensure(env->vars.count(name) == 0, "Duplicate variable definition");
+    func->args.push_back(
+        &env->vars.emplace(piecewise_construct, forward_as_tuple(name),
+                           forward_as_tuple(name, type)).first->second);
+  }
+  auto type = env->lookup_type(list[3].get_symbol());
+  ensure(type, "No such type");
+  func->return_type = type;
+  for (size_t i = 4; i < list.size(); i++) {
+    parse(&func->body, list[i]);
   }
 }
 
