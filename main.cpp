@@ -52,8 +52,8 @@ class List {
   }
 
   size_t size() const {
-      ensure(type == NodeType::list, "List expected");
-      return children.size();
+    ensure(type == NodeType::list, "List expected");
+    return children.size();
   }
 
   const List& operator[](size_t index) const {
