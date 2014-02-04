@@ -51,9 +51,14 @@ class List {
     return data;
   }
 
-  const vector<ListPtr>& get_children() const {
-    ensure(type == NodeType::list, "List expected");
-    return children;
+  size_t size() const {
+      ensure(type == NodeType::list, "List expected");
+      return children.size();
+  }
+
+  const List& operator[](size_t index) const {
+    ensure(0 <= index && index < size(), "List out of bound");
+    return *children[index];
   }
 
   void dump() const {
@@ -89,16 +94,7 @@ class List {
   // };
 };
 
-// ---------- AST ----------
-class Node {
- public:
-  virtual void codegen() const = 0;
-  virtual ~Node() {}
-};
-
-// FIXME Will be reimplemented in the future.
-typedef unique_ptr<Node> NodePtr;
-typedef NodePtr (*Handler)(const List& list);
+typedef void (*Handler)(void* generic, const List& list);
 
 // ---------- global definition ----------
 extern map<String, Handler> handler;
@@ -143,12 +139,11 @@ ListPtr tokenize() {
   return list;
 }
 
-NodePtr parse(const List& list) {
-  auto& children = list.get_children();
-  ensure(children.size() > 0, "Keyword expected");
-  ensure(handler.count(children[0]->get_symbol()) > 0,
-         String("No such keyword: " + children[0]->get_symbol()));
-  return handler[children[0]->get_symbol()](list);
+void parse(void* generic, const List& list) {
+  ensure(list.size() > 0, "Keyword expected");
+  ensure(handler.count(list[0].get_symbol()) > 0,
+         String("No such keyword: " + list[0].get_symbol()));
+  handler[list[0].get_symbol()](generic, list);
 }
 
 #include "core.cpp"
@@ -168,7 +163,8 @@ int main(int argc, char* args[]) {
   while ((list = tokenize()) != nullptr) {
     list_root->append(move(list));
   }
-  auto ast_root = parse(*list_root);
-  ast_root->codegen();
+  FileNode ast_root;
+  parse(&ast_root, *list_root);
+  ast_root.codegen();
   return 0;
 }

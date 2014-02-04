@@ -1,96 +1,114 @@
+// ---------- AST ----------
+class Node {
+ public:
+  virtual void codegen() const = 0;
+  virtual ~Node() {}
+};
+
+// FIXME Will be reimplemented in the future.
+typedef unique_ptr<Node> NodePtr;
+
 class Type {
+public:
     String name;
     int size;
 };
 
 class Variable {
-    String name;
-    Type type;
-};
-
-class FunctionNode : public Node {
 public:
     String name;
-    Type return_type;
-    vector<Variable> args; // arguments
+    Type* type;
+
+    Variable(String name, Type* type) : name(name), type(type) {}
+};
+
+class FunctionNode;
+class Environment {
+public:
+    map<String, Variable> vars;
+    map<String, Type> types;
+    map<String, FunctionNode> functions;
+    Environment* parent;
+
+    Environment(Environment* parent) : parent(parent) {}
+};
+
+class BlockNode {
+public:
+    Environment env;
     vector<NodePtr> stmts; // statements
 
-    void codegen() const {
-	cerr << "function codegen\n";
-    }
+    BlockNode(Environment* parent) : env(parent) {}
 };
 
-typedef map<String, Variable> Environment;
-Environment global_variable;
-map<String, FunctionNode*> global_function;
-vector<Environment*> env_stack;
-
-class FileNode : public Node {
+class FunctionNode {
 public:
-    vector<NodePtr> decls; // declarations
+    String name;
+    Type* return_type;
+    vector<Variable*> args; // arguments
+    BlockNode body;
+
+    FunctionNode(Environment* parent) : body(parent) {}
+};
+
+class FileNode {
+public:
+    Environment env;
+
+    FileNode() : env(nullptr) {}
 
     void codegen() const {
 	cerr << "file codegen\n";
-	for (const auto& it : decls) {
-	    it->codegen();
-	}
     }
 };
 
-// ---------- file scope ----------
-NodePtr handle_file(const List& list) {
+void handle_file(void* generic, const List& list) {
   cerr << "handle_file\n";
-  const auto& vec = list.get_children();
-  auto filenode = new FileNode();
-  env_stack.push_back(&global_variable);
-  for (long i = 1; i < (long)vec.size(); i++) {
-      auto p = parse(*vec[i]);
-      if (p != nullptr) {
-	  filenode->decls.push_back(move(p));
-      }
+  for (size_t i = 1; i < list.size(); i++) {
+      parse(&static_cast<FileNode*>(generic)->env, list[i]);
   }
-  env_stack.pop_back();
-  return unique_ptr<Node>(filenode);
 }
 
-// ---------- comment ----------
-NodePtr handle_comment(const List& list) { return nullptr; }
+void handle_comment(void* generic, const List& list) {}
 
-// ---------- function ----------
-NodePtr handle_function(const List& list) {
+void handle_function(void* generic, const List& list) {
   cerr << "handle_function\n";
-  auto funcnode = new FunctionNode();
-  return unique_ptr<Node>(funcnode);
+  auto env = static_cast<Environment*>(generic);
+  auto funcname = list[1].get_symbol();
+  ensure(env->functions.count(funcname) == 0, "Duplicate function definition");
+  FunctionNode* func = &env->functions.emplace(piecewise_construct, forward_as_tuple(funcname), forward_as_tuple(env)).first->second;
+  func->name = funcname;
+  env = &func->body.env;
+  for (size_t i = 0; i < list[2].size(); i++) {
+      auto type = list[2][i][0].get_symbol();
+      auto name = list[2][i][1].get_symbol();
+      cerr << type << " " << name << "\n";
+      // TODO insert arguments.
+  }
 }
 
-NodePtr handle_if(const List& list) {
+void handle_if(void* generic, const List& list) {
   cerr << "handle_if\n";
-  return nullptr;
 }
 
-NodePtr handle_lt(const List& list) {
+void handle_lt(void* generic, const List& list) {
   cerr << "handle_lt\n";
-  return nullptr;
 }
 
-NodePtr handle_return(const List& list) {
+void handle_return(void* generic, const List& list) {
   cerr << "handle_return\n";
-  return nullptr;
 }
 
-NodePtr handle_plus(const List& list) {
+void handle_plus(void* generic, const List& list) {
   cerr << "handle_plus\n";
-  return nullptr;
 }
 
-NodePtr handle_call(const List& list) {
+void handle_call(void* generic, const List& list) {
   cerr << "handle_call\n";
-  return nullptr;
 }
 
-NodePtr handle_minus(const List& list) {
+void handle_minus(void* generic, const List& list) {
   cerr << "handle_minus\n";
-  return nullptr;
 }
 
 map<String, Handler> handler = {{"file", handle_file},
