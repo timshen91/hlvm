@@ -124,24 +124,18 @@ void handle_function(void* generic, const List& list) {
 
 void handle_if(void* generic, const List& list) { cerr << "handle_if\n"; }
 
-void handle_lt(void* generic, const List& list) { cerr << "handle_lt\n"; }
-
 void handle_return(void* generic, const List& list) {
   cerr << "handle_return\n";
 }
 
-void handle_plus(void* generic, const List& list) { cerr << "handle_plus\n"; }
-
 void handle_call(void* generic, const List& list) { cerr << "handle_call\n"; }
 
-void handle_minus(void* generic, const List& list) { cerr << "handle_minus\n"; }
+typedef tuple<String, String, Handler> HandlerEntry;
 
-map<String, Handler> handler = {{"file", handle_file},
-                                {"#", handle_comment},
-                                {"function", handle_function},
-                                {"if", handle_if},
-                                {"<=", handle_lt},
-                                {"return", handle_return},
-                                {"+", handle_plus},
-                                {"call", handle_call},
-                                {"-", handle_minus}, };
+map<String, HandlerEntry> handler = {
+    {"file", HandlerEntry{"root_scope", "file_scope", handle_file}},
+    {"#", HandlerEntry{"-", "-", handle_comment}},
+    {"function", HandlerEntry{"file_scope", "function_scope", handle_function}},
+    {"if", HandlerEntry{"function_scope", "-", handle_if}},
+    {"return", HandlerEntry{"function_scope", "-", handle_return}},
+    {"call", HandlerEntry{"function_scope", "-", handle_call}}, };

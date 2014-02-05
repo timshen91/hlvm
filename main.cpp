@@ -4,6 +4,8 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <stack>
+#include <tuple>
 #include <cstdio>
 #include <cctype>
 #include <cstdlib>
@@ -97,7 +99,8 @@ class List {
 typedef void (*Handler)(void* generic, const List& list);
 
 // ---------- global definition ----------
-extern map<String, Handler> handler;
+extern map<String, tuple<String, String, Handler>> handler;
+stack<String> scope_stack;
 
 // ---------- parser ----------
 ListPtr tokenize() {
@@ -143,7 +146,16 @@ void parse(void* generic, const List& list) {
   ensure(list.size() > 0, "Keyword expected");
   ensure(handler.count(list[0].get_symbol()) > 0,
          String("No such keyword: " + list[0].get_symbol()));
-  handler[list[0].get_symbol()](generic, list);
+  const auto& h = handler[list[0].get_symbol()];
+  ensure(get<0>(h) == "-" || scope_stack.top() == get<0>(h),
+         "Pre scope not match");
+  if (get<1>(h) != "-") {
+    scope_stack.push(get<1>(h));
+    get<2>(h)(generic, list);
+    scope_stack.pop();
+  } else {
+    get<2>(h)(generic, list);
+  }
 }
 
 #include "core.cpp"
@@ -156,6 +168,7 @@ int main(int argc, char* args[]) {
     }
   }
 
+  scope_stack.push("root_scope");
   auto list_root = make_unique<List>(NodeType::list);
   list_root->append(make_unique<List>("file"));
 
