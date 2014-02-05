@@ -151,11 +151,11 @@ void parse(void* generic, const List& list) {
          "Pre scope not match");
   if (get<1>(h) != "-") {
     scope_stack.push_back(get<1>(h));
-    get<2>(h)(generic, list);
-    scope_stack.pop_back();
   } else {
-    get<2>(h)(generic, list);
+    scope_stack.push_back(scope_stack.back());
   }
+  get<2>(h)(generic, list);
+  scope_stack.pop_back();
 }
 
 #include "core.cpp"
