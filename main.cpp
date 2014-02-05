@@ -100,7 +100,6 @@ typedef void (*Handler)(void* generic, const List& list);
 
 // ---------- global definition ----------
 extern map<String, tuple<String, String, Handler>> handler;
-stack<String> scope_stack;
 
 // ---------- parser ----------
 ListPtr tokenize() {
@@ -143,16 +142,17 @@ ListPtr tokenize() {
 }
 
 void parse(void* generic, const List& list) {
+  static vector<String> scope_stack = {"root_scope"};
   ensure(list.size() > 0, "Keyword expected");
   ensure(handler.count(list[0].get_symbol()) > 0,
          String("No such keyword: " + list[0].get_symbol()));
   const auto& h = handler[list[0].get_symbol()];
-  ensure(get<0>(h) == "-" || scope_stack.top() == get<0>(h),
+  ensure(get<0>(h) == "-" || scope_stack.back() == get<0>(h),
          "Pre scope not match");
   if (get<1>(h) != "-") {
-    scope_stack.push(get<1>(h));
+    scope_stack.push_back(get<1>(h));
     get<2>(h)(generic, list);
-    scope_stack.pop();
+    scope_stack.pop_back();
   } else {
     get<2>(h)(generic, list);
   }
@@ -168,7 +168,6 @@ int main(int argc, char* args[]) {
     }
   }
 
-  scope_stack.push("root_scope");
   auto list_root = make_unique<List>(NodeType::list);
   list_root->append(make_unique<List>("file"));
 
