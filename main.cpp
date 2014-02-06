@@ -10,6 +10,7 @@
 #include <cctype>
 #include <cstdlib>
 #include <cstring>
+#include <cstddef>
 
 using namespace std;
 
@@ -31,6 +32,18 @@ inline unique_ptr<T> make_unique(Args&&... args) {
 }
 };
 
+// ---------- AST ----------
+class Node {
+ public:
+  virtual void codegen() const = 0;
+  virtual ~Node() {}
+};
+
+// FIXME Will be reimplemented in the future.
+typedef unique_ptr<Node> NodePtr;
+
+class Environment;
+
 // ---------- List ----------
 class List;
 typedef string String;
@@ -43,6 +56,12 @@ enum class NodeType {
 
 class List {
  public:
+  NodeType type;
+  // union {
+  String data;
+  vector<ListPtr> children;
+  // };
+
   explicit List(NodeType type) : type(type) {}
   explicit List(String data) : type(NodeType::symbol), data(data) {}
 
@@ -84,29 +103,11 @@ class List {
     }
   }
 
- private:
   void print_depth(int depth) const {
     while (depth--) cout << "  ";
   }
-
-  NodeType type;
-  // union {
-  String data;
-  vector<ListPtr> children;
-  // };
 };
 
-// ---------- AST ----------
-class Node {
- public:
-  virtual void codegen() const = 0;
-  virtual ~Node() {}
-};
-
-// FIXME Will be reimplemented in the future.
-typedef unique_ptr<Node> NodePtr;
-
-class Environment;
 typedef NodePtr (*Handler)(Environment* env, const List& list);
 
 // ---------- global definition ----------
@@ -188,6 +189,9 @@ int main(int argc, char* args[]) {
     list_root->append(move(list));
   }
   Environment top_env(nullptr);
+  top_env.create_type(make_unique<Type>("int", 4));
+  top_env.must_lookup_type("int");
+
   parse(&top_env, *list_root)->codegen();
   return 0;
 }
