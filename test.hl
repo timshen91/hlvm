@@ -5,5 +5,5 @@
                    (fib (- n (int-lit 2))))))))
 
 (function main () int
- (expr (fib (int 3)))
+ (expr (fib (int-lit 3)))
  (return (expr (int-lit 0))))
