@@ -1,13 +1,3 @@
-// ---------- AST ----------
-class Node {
- public:
-  virtual void codegen() const = 0;
-  virtual ~Node() {}
-};
-
-// FIXME Will be reimplemented in the future.
-typedef unique_ptr<Node> NodePtr;
-
 class Type {
  public:
   String name;
@@ -27,26 +17,23 @@ class Variable {
 class FunctionNode;
 class Environment {
  public:
-  map<String, Variable> vars;
-  map<String, Type> types;
-  map<String, FunctionNode> functions;
+  map<String, unique_ptr<Variable>> vars;
+  map<String, unique_ptr<Type>> types;
+  map<String, unique_ptr<FunctionNode>> functions;
   Environment* parent;
 
   Environment(Environment* parent) : parent(parent) {}
 
-  template <typename... Args>
-  Variable* emplace_var(Args&&... args) {
-    return emplace_impl(vars, args...);
+  Variable* create_var(unique_ptr<Variable>&& ptr) {
+    return create_impl(vars, move(ptr));
   }
 
-  template <typename... Args>
-  FunctionNode* emplace_func(Args&&... args) {
-    return emplace_impl(functions, args...);
+  FunctionNode* create_func(unique_ptr<FunctionNode>&& ptr) {
+    return create_impl(functions, move(ptr));
   }
 
-  template <typename... Args>
-  Type* emplace_type(Args&&... args) {
-    return emplace_impl(types, args...);
+  Type* create_type(unique_ptr<Type>&& ptr) {
+    return create_impl(types, move(ptr));
   }
 
   Type* must_lookup_type(String name) {
@@ -54,16 +41,14 @@ class Environment {
     if (types.count(name) == 0) {
       return parent->must_lookup_type(name);
     }
-    return &types.find(name)->second;
+    return &*types.find(name)->second;
   }
 
  private:
-  template <typename T, typename... Args>
-  T* emplace_impl(map<String, T>& c, String name, Args&&... args) {
-    auto res = c.emplace(piecewise_construct, forward_as_tuple(name),
-                         forward_as_tuple(name, args...));
-    ensure(res.second, "Duplicated definition");
-    return &res.first->second;
+  template <typename T>
+  T* create_impl(map<String, unique_ptr<T>>& c, unique_ptr<T>&& ptr) {
+    ensure(c.count(ptr->name) == 0, "Duplicated definition");
+    return &*(c[ptr->name] = move(ptr));
   }
 };
 
@@ -85,57 +70,107 @@ class FunctionNode {
   FunctionNode(String name, Environment* parent) : name(name), body(parent) {}
 };
 
-class FileNode {
+class FileNode : public Node {
  public:
   Environment env;
 
-  FileNode() : env(nullptr) { env.emplace_type("int", 4); }
+  FileNode(Environment* parent) : env(parent) {
+    env.create_type(make_unique<Type>("int", 4));
+  }
 
   void codegen() const { cerr << "file codegen\n"; }
 };
 
-void handle_file(void* generic, const List& list) {
+class ExprNode : public Node {
+ public:
+  void codegen() const {}
+};
+
+class IfNode : public Node {
+ public:
+  NodePtr cond;
+  NodePtr then_branch;
+  NodePtr else_branch;
+
+  void codegen() const { cerr << "if node codegen\n"; }
+};
+
+class ReturnNode : public Node {
+ public:
+  NodePtr ret;
+
+  void codegen() const { cerr << "return node codegen\n"; }
+};
+
+NodePtr handle_file(Environment* env, const List& list) {
   cerr << "handle_file\n";
+  auto file = make_unique<FileNode>(env);
   for (size_t i = 1; i < list.size(); i++) {
-    parse(&static_cast<FileNode*>(generic)->env, list[i]);
+    parse(&file->env, list[i]);
   }
+  return unique_ptr<Node>(file.release());
 }
 
-void handle_comment(void* generic, const List& list) {}
+NodePtr handle_comment(Environment* env, const List& list) { return nullptr; }
 
-void handle_function(void* generic, const List& list) {
+NodePtr handle_function(Environment* env, const List& list) {
   cerr << "handle_function\n";
-  auto env = static_cast<Environment*>(generic);
+  ensure(list.size() >= 5, "Function requires 5 components");
   auto funcname = list[1].get_symbol();
-  FunctionNode* func = env->emplace_func(funcname, env);
-  env = &func->body.env;
+  auto func = make_unique<FunctionNode>(funcname, env);
+  auto funcenv = &func->body.env;
   for (size_t i = 0; i < list[2].size(); i++) {
     ensure(list[2][i].size() == 2, "Invalid argument declaration");
-    auto type = env->must_lookup_type(list[2][i][0].get_symbol());
+    auto type = funcenv->must_lookup_type(list[2][i][0].get_symbol());
     auto name = list[2][i][1].get_symbol();
-    func->args.push_back(env->emplace_var(name, type));
+    func->args.push_back(
+        funcenv->create_var(make_unique<Variable>(name, type)));
   }
-  auto type = env->must_lookup_type(list[3].get_symbol());
-  func->return_type = type;
+  func->return_type = funcenv->must_lookup_type(list[3].get_symbol());
   for (size_t i = 4; i < list.size(); i++) {
-    parse(&func->body, list[i]);
+    func->body.stmts.push_back(parse(funcenv, list[i]));
   }
+  env->create_func(move(func));
+  return nullptr;
 }
 
-void handle_if(void* generic, const List& list) { cerr << "handle_if\n"; }
+NodePtr handle_if(Environment* env, const List& list) {
+  cerr << "handle_if\n";
+  ensure(list.size() == 4, "if statement requires 4 components");
+  ensure(list[1][0].get_symbol() == "expr",
+         "if statement requires an expr as condition");
+  auto ifnode = make_unique<IfNode>();
+  ifnode->cond = parse(env, list[1]);
+  ifnode->then_branch = parse(env, list[2]);
+  ifnode->else_branch = parse(env, list[3]);
+  return unique_ptr<Node>(ifnode.release());
+}
 
-void handle_return(void* generic, const List& list) {
+NodePtr handle_return(Environment* env, const List& list) {
   cerr << "handle_return\n";
+  ensure(list.size() == 2, "return statement requires 2 components");
+  ensure(list[1][0].get_symbol() == "expr",
+         "return statement requires an expr to return");
+  auto ret = make_unique<ReturnNode>();
+  ret->ret = parse(env, list[1]);
+  return unique_ptr<Node>(ret.release());
 }
 
-void handle_call(void* generic, const List& list) { cerr << "handle_call\n"; }
+NodePtr handle_expr(Environment* env, const List& list) {
+  cerr << "handle_expr\n";
+  auto expr = make_unique<ExprNode>();
+  // TODO
+  return unique_ptr<Node>(expr.release());
+}
 
+// state required ("-" is any), set state to ("-" is no changed), and the
+// handler function.
 typedef tuple<String, String, Handler> HandlerEntry;
 
 map<String, HandlerEntry> handler = {
     {"file", HandlerEntry{"root_scope", "file_scope", handle_file}},
     {"#", HandlerEntry{"-", "-", handle_comment}},
-    {"function", HandlerEntry{"file_scope", "function_scope", handle_function}},
-    {"if", HandlerEntry{"function_scope", "-", handle_if}},
-    {"return", HandlerEntry{"function_scope", "-", handle_return}},
-    {"call", HandlerEntry{"function_scope", "-", handle_call}}, };
+    {"function", HandlerEntry{"file_scope", "block_scope", handle_function}},
+    {"if", HandlerEntry{"block_scope", "-", handle_if}},
+    {"return", HandlerEntry{"block_scope", "-", handle_return}},
+    {"expr", HandlerEntry{"block_scope", "-", handle_expr}}, };

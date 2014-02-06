@@ -96,7 +96,18 @@ class List {
   // };
 };
 
-typedef void (*Handler)(void* generic, const List& list);
+// ---------- AST ----------
+class Node {
+ public:
+  virtual void codegen() const = 0;
+  virtual ~Node() {}
+};
+
+// FIXME Will be reimplemented in the future.
+typedef unique_ptr<Node> NodePtr;
+
+class Environment;
+typedef NodePtr (*Handler)(Environment* env, const List& list);
 
 // ---------- global definition ----------
 extern map<String, tuple<String, String, Handler>> handler;
@@ -141,7 +152,7 @@ ListPtr tokenize() {
   return list;
 }
 
-void parse(void* generic, const List& list) {
+NodePtr parse(Environment* env, const List& list) {
   static vector<String> scope_stack = {"root_scope"};
   ensure(list.size() > 0, "Keyword expected");
   ensure(handler.count(list[0].get_symbol()) > 0,
@@ -154,8 +165,9 @@ void parse(void* generic, const List& list) {
   } else {
     scope_stack.push_back(scope_stack.back());
   }
-  get<2>(h)(generic, list);
+  auto ret = get<2>(h)(env, list);
   scope_stack.pop_back();
+  return ret;
 }
 
 #include "core.cpp"
@@ -175,8 +187,7 @@ int main(int argc, char* args[]) {
   while ((list = tokenize()) != nullptr) {
     list_root->append(move(list));
   }
-  FileNode ast_root;
-  parse(&ast_root, *list_root);
-  ast_root.codegen();
+  Environment top_env(nullptr);
+  parse(&top_env, *list_root)->codegen();
   return 0;
 }

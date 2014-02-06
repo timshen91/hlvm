@@ -1,11 +1,9 @@
 (function fib ((int n)) int
- (if (call <= n (call int-lit 1))
-  (return n)
-  (return
-   (call +
-    (call fib (call - n (call int-lit 1)))
-    (call fib (call - n (call int-lit 2)))))))
+ (if (expr (<= n (int-lit 1)))
+  (return (expr n))
+  (return (expr (+ (fib (- n (int-lit 1)))
+                   (fib (- n (int-lit 2))))))))
 
 (function main () int
- (call fib (int 3))
- (return 0))
+ (expr (fib (int 3)))
+ (return (expr (int-lit 0))))
