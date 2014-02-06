@@ -101,6 +101,8 @@ class ExprNode : public Node {
   void codegen() const = 0;
 };
 
+typedef unique_ptr<ExprNode> ExprPtr;
+
 class AtomNode : public ExprNode {
  public:
   Variable* var;
@@ -117,7 +119,7 @@ class AtomNode : public ExprNode {
 class CallNode : public ExprNode {
  public:
   FunctionNode* func;
-  vector<unique_ptr<ExprNode>> args;
+  vector<ExprPtr> args;
 
   CallNode(FunctionNode* func) : func(func) {}
 
@@ -136,7 +138,7 @@ class CallNode : public ExprNode {
 
 class IfNode : public Node {
  public:
-  NodePtr cond;
+  ExprPtr cond;
   NodePtr then_branch;
   NodePtr else_branch;
 
@@ -156,7 +158,7 @@ NodePtr handle_file(Environment* env, const List& list) {
   for (size_t i = 1; i < list.size(); i++) {
     parse(&file->env, list[i]);
   }
-  return unique_ptr<Node>(file.release());
+  return NodePtr(file.release());
 }
 
 NodePtr handle_comment(Environment* env, const List& list) { return nullptr; }
@@ -183,18 +185,6 @@ NodePtr handle_function(Environment* env, const List& list) {
   return nullptr;
 }
 
-NodePtr handle_if(Environment* env, const List& list) {
-  cerr << "handle_if\n";
-  ensure(list.size() == 4, "if statement requires 4 components");
-  ensure(list[1][0].get_symbol() == "expr",
-         "if statement requires an expr as condition");
-  auto ifnode = make_unique<IfNode>();
-  ifnode->cond = parse(env, list[1]);
-  ifnode->then_branch = parse(env, list[2]);
-  ifnode->else_branch = parse(env, list[3]);
-  return unique_ptr<Node>(ifnode.release());
-}
-
 NodePtr handle_return(Environment* env, const List& list) {
   cerr << "handle_return\n";
   ensure(list.size() == 2, "return statement requires 2 components");
@@ -202,13 +192,12 @@ NodePtr handle_return(Environment* env, const List& list) {
          "return statement requires an expr to return");
   auto ret = make_unique<ReturnNode>();
   ret->ret = parse(env, list[1]);
-  return unique_ptr<Node>(ret.release());
+  return NodePtr(ret.release());
 }
 
-unique_ptr<ExprNode> handle_expr_impl(Environment* env, const List& list) {
+ExprPtr handle_expr_impl(Environment* env, const List& list) {
   if (list.type == NodeType::symbol) {
-    return unique_ptr<ExprNode>(
-        new AtomNode(env->must_lookup_var(list.get_symbol())));
+    return ExprPtr(new AtomNode(env->must_lookup_var(list.get_symbol())));
   } else {
     ensure(list.size() >= 1, "Function name required");
     auto call =
@@ -217,13 +206,25 @@ unique_ptr<ExprNode> handle_expr_impl(Environment* env, const List& list) {
       call->args.push_back(handle_expr_impl(env, list[i]));
     }
     call->type_check();
-    return unique_ptr<ExprNode>(call.release());
+    return ExprPtr(call.release());
   }
 }
 
 NodePtr handle_expr(Environment* env, const List& list) {
   cerr << "handle_expr\n";
-  return unique_ptr<Node>(handle_expr_impl(env, list[1]).release());
+  return NodePtr(handle_expr_impl(env, list[1]).release());
+}
+
+NodePtr handle_if(Environment* env, const List& list) {
+  cerr << "handle_if\n";
+  ensure(list.size() == 4, "if statement requires 4 components");
+  auto ifnode = make_unique<IfNode>();
+  ensure(list[1][0].get_symbol() == "expr",
+         "if statement requires an expr as condition");
+  ifnode->cond = handle_expr_impl(env, list[1][1]);
+  ifnode->then_branch = parse(env, list[2]);
+  ifnode->else_branch = parse(env, list[3]);
+  return NodePtr(ifnode.release());
 }
 
 // state required ("-" is any), set state to ("-" is no changed), and the
