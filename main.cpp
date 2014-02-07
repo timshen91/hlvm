@@ -40,8 +40,6 @@ class Node {
 // FIXME Will be reimplemented in the future.
 typedef unique_ptr<Node> NodePtr;
 
-class Environment;
-
 // ---------- List ----------
 class List;
 typedef string String;
@@ -106,10 +104,7 @@ class List {
   }
 };
 
-typedef NodePtr (*Handler)(Environment* env, const List& list);
-
-// ---------- global definition ----------
-extern map<String, tuple<String, String, Handler>> handler;
+typedef NodePtr (*Handler)(const List& list);
 
 // ---------- parser ----------
 ListPtr tokenize() {
@@ -151,7 +146,9 @@ ListPtr tokenize() {
   return list;
 }
 
-NodePtr parse(Environment* env, const List& list) {
+extern map<String, tuple<String, String, Handler>> handler;
+
+NodePtr parse(const List& list) {
   static vector<String> scope_stack = {"root_scope"};
   ensure(list.size() > 0, "Keyword expected");
   ensure(handler.count(list[0].get_symbol()) > 0,
@@ -164,7 +161,7 @@ NodePtr parse(Environment* env, const List& list) {
   } else {
     scope_stack.push_back(scope_stack.back());
   }
-  auto ret = get<2>(h)(env, list);
+  auto ret = get<2>(h)(list);
   scope_stack.pop_back();
   return ret;
 }
@@ -186,10 +183,7 @@ int main(int argc, char* args[]) {
   while ((list = tokenize()) != nullptr) {
     list_root->append(move(list));
   }
-  Environment top_env(nullptr);
-  top_env.create_type(make_unique<Type>("int", 4));
-  top_env.must_lookup_type("int");
 
-  parse(&top_env, *list_root)->codegen();
+  parse(*list_root)->codegen();
   return 0;
 }
