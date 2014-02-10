@@ -184,6 +184,7 @@ int main(int argc, char* args[]) {
     list_root->append(move(list));
   }
 
+  init();
   parse(*list_root)->codegen();
   return 0;
 }
