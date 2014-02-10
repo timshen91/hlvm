@@ -2,6 +2,9 @@ class Type;
 class Variable;
 class FunctionNode;
 
+// All envs form a tree; every env stores variables, functions and types, so
+// that it enables defining function in a function scope, or even in a for loop.
+// Defining types in non-top-env is also possible.
 class Environment {
  public:
   map<String, unique_ptr<Variable>> vars;
@@ -50,7 +53,7 @@ class Environment {
     if (c.count(name) == 0) {
       return parent->must_lookup<T>(member_offset, name);
     }
-    return &*c.at(name);
+    return c.at(name).get();
   }
 };
 

@@ -14,6 +14,16 @@ class Variable {
   Variable(String name, Type* type) : name(name), type(type) {}
 };
 
+// int a() {
+//     {
+//       int b;
+//       b = 0;
+//     }
+// }
+// A block node is a block with an independent env and a sequence of statements,
+// for example, b is in a explicit block.
+// A function by default contains a block for its own statemnts, local variables
+// and parameters.
 class BlockNode {
  public:
   Environment env;
@@ -32,6 +42,7 @@ class FunctionNode {
   FunctionNode(String name, Environment* parent) : name(name), body(parent) {}
 };
 
+// A file is nothing more than a set of definitions.
 class FileNode : public Node {
  public:
   Environment env;
@@ -41,6 +52,7 @@ class FileNode : public Node {
   void codegen() const { cerr << "file codegen\n"; }
 };
 
+// An expr is either a function call or an atom (a symbol).
 class ExprNode : public Node {
  public:
   virtual Type* get_type() const = 0;
