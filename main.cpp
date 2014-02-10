@@ -166,6 +166,8 @@ NodePtr parse(const List& list) {
   return ret;
 }
 
+#include "env.cpp"
+#include "ast.cpp"
 #include "core.cpp"
 
 int main(int argc, char* args[]) {
