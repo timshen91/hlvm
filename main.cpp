@@ -30,13 +30,6 @@ inline unique_ptr<T> make_unique(Args&&... args) {
 }
 };
 
-// ---------- AST ----------
-class Node {
- public:
-  virtual void codegen() const = 0;
-  virtual ~Node() {}
-};
-
 // FIXME Will be reimplemented in the future.
 typedef unique_ptr<Node> NodePtr;
 

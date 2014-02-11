@@ -1,3 +1,10 @@
+// ---------- AST ----------
+class Node {
+ public:
+  virtual void codegen() const = 0;
+  virtual ~Node() {}
+};
+
 class Type {
  public:
   String name;
