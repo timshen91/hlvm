@@ -30,15 +30,17 @@ class Variable {
 // for example, b is in a explicit block.
 // A function by default contains a block for its own statemnts, local variables
 // and parameters.
-class BlockNode {
+class BlockNode : public Node {
  public:
   Environment env;
   vector<NodePtr> stmts;  // statements
 
   BlockNode(Environment* parent) : env(parent) {}
+
+  void codegen() const;
 };
 
-class FunctionNode {
+class FunctionNode : public Node {
  public:
   String name;
   Type* return_type;
@@ -46,6 +48,8 @@ class FunctionNode {
   BlockNode body;
 
   FunctionNode(String name, Environment* parent) : name(name), body(parent) {}
+  
+  void codegen() const;
 };
 
 // A file is nothing more than a set of definitions.
@@ -78,7 +82,7 @@ class AtomNode : public ExprNode {
 
   void type_check() const {}
 
-  void codegen() const {}
+  void codegen() const;
 };
 
 class CallNode : public ExprNode {
@@ -98,7 +102,7 @@ class CallNode : public ExprNode {
     }
   }
 
-  void codegen() const {}
+  void codegen() const;
 };
 
 class IfNode : public Node {
@@ -107,14 +111,14 @@ class IfNode : public Node {
   NodePtr then_branch;
   NodePtr else_branch;
 
-  void codegen() const { cerr << "if node codegen\n"; }
+  void codegen() const;
 };
 
 class ReturnNode : public Node {
  public:
   NodePtr ret;
 
-  void codegen() const { cerr << "return node codegen\n"; }
+  void codegen() const;
 };
 
 #include "codegen.cpp"
