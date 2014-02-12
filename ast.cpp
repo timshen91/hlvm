@@ -1,4 +1,3 @@
-// ---------- AST ----------
 class Node {
  public:
   virtual void codegen() const = 0;
@@ -56,7 +55,7 @@ class FileNode : public Node {
 
   FileNode(Environment* parent) : env(parent) {}
 
-  void codegen() const { cerr << "file codegen\n"; }
+  void codegen() const;
 };
 
 // An expr is either a function call or an atom (a symbol).
@@ -117,3 +116,5 @@ class ReturnNode : public Node {
 
   void codegen() const { cerr << "return node codegen\n"; }
 };
+
+#include "codegen.cpp"
