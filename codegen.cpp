@@ -2,7 +2,6 @@
 #define __codegen_cpp_included__
 
 #include <cstdio>
-#include <string>
 #include <sstream>
 
 using namespace std;
@@ -19,7 +18,7 @@ class GlobalLabeller {
     return instance;
   }
 
-  string next_label() {
+  String next_label() {
     stringstream ss;
     ss << "L" << counter++;
     return ss.str();
@@ -49,9 +48,9 @@ void CallNode::codegen() const {
 void IfNode::codegen() const {
   cerr << "if node codegen\n";
   cond->codegen();
-  string tbl = gl.next_label();  // then branch label
-  string ebl = gl.next_label();  // else branch label
-  string fil = gl.next_label();  // end if label
+  String tbl = gl.next_label();  // then branch label
+  String ebl = gl.next_label();  // else branch label
+  String fil = gl.next_label();  // end if label
   // assuming the result of cond expr is put into %rax
   cout << "\tcmpq\t$0, %rax\n"
        << "\tje\t" << ebl << '\n' << tbl << ":\n";
