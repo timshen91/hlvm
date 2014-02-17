@@ -48,7 +48,7 @@ class FunctionNode : public Node {
   BlockNode body;
 
   FunctionNode(String name, Environment* parent) : name(name), body(parent) {}
-  
+
   void codegen() const;
 };
 
